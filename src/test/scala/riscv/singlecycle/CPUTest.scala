@@ -113,3 +113,25 @@ class ByteAccessTest extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 }
+
+
+class hw2Test extends AnyFlatSpec with ChiselScalatestTester {
+  behavior.of("Single Cycle CPU")
+  it should "implement hw2" in {
+    test(new TestTopModule("hw2.asmbin")).withAnnotations(TestAnnotations.annos) { c =>
+      for (i <- 1 to 500) {
+        c.clock.step(1000)
+        c.io.mem_debug_read_address.poke((i * 4).U) // Avoid timeout
+      }
+      c.io.mem_debug_read_address.poke(4.U)
+      c.clock.step()
+      c.io.mem_debug_read_data.expect(0xd.U)
+      c.io.mem_debug_read_address.poke(8.U)
+      c.clock.step()
+      c.io.mem_debug_read_data.expect(0x24.U)
+      c.io.mem_debug_read_address.poke(12.U)
+      c.clock.step()
+      c.io.mem_debug_read_data.expect(0x0.U)
+    }
+  }
+}
